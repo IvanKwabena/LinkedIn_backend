@@ -5,8 +5,8 @@ require('dotenv').config();
 const mongo_api = process.env.MONGO_APIKEY;
 mongoose
   .connect(mongo_api, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
     dbName: 'LinkedIn',
   })
   .then(() => {
@@ -14,5 +14,5 @@ mongoose
   })
   .catch((err) => {
     console.log(err);
-    process.exit(1);
+    process.exit(1); // Used to manually terminate the process from running
   });

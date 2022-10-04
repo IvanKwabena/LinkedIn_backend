@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcrypt');
 
 const userSchema = mongoose.Schema({
   name: {
@@ -17,12 +18,6 @@ const userSchema = mongoose.Schema({
       type: String,
       trim: true,
     },
-    // userName: {
-    //   type: String,
-    //   required: true,
-    //   trim: true,
-    //   lenght: { min: 2, max: 32 },
-    // },
   },
   email: {
     type: String,
@@ -82,11 +77,11 @@ const userSchema = mongoose.Schema({
 
   phone: {
     phoneNumber: {
-      type: String,
-      trim: true,
+      type: Number,
+      // trim: true,
       default: ' ',
     },
-    phoneTypye: {
+    phoneType: {
       type: String,
       trim: true,
       default: 'Work',
@@ -98,6 +93,19 @@ const userSchema = mongoose.Schema({
     trim: true,
     default: ' ',
   },
+  dateCreated: {
+    type: Date,
+    default: Date.now,
+  },
 });
+
+// Middleware to hash a password before it is sent to database
+// userSchema.pre('save', async function (next) {
+//   const user = this;
+//   if (user.isModified('passwordHash')) {
+//     user.passwordHash = await bcrypt.hash(user.passwordHash, 8);
+//     next();
+//   }
+// });
 
 module.exports = mongoose.model('User', userSchema);
