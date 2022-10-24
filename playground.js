@@ -51,3 +51,35 @@
 //     res.status(4000).send(error);
 //   }
 // });
+let nums = [1, 2, 3, 4, 5, 7, 8];
+let t = nums.length - 2;
+target = 15;
+console.log(nums.indexOf(7, t));
+
+var twoSum = (array, target) => {
+  if (array.length === 0) {
+    return [0, 1];
+  }
+
+  let i = 0;
+  let j = array.length - 1;
+
+  while (i < j) {
+    if (array[i] + array[j] == target) {
+      break;
+    } else if (array[i] + array[j] > target) {
+      j -= 1;
+    } else if (array[i] + array[j] < target) {
+      i += 1;
+    }
+  }
+  a = array.indexOf(i) + 1;
+  b = array.indexOf(j, -1);
+  //   a = array[i];
+  //   b = array[j];
+  //   console.log(a);
+  //   console.log(b);
+  //   return [a];
+};
+
+twoSum(nums, target);

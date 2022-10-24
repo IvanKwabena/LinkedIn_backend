@@ -41,14 +41,33 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Login a User
-router.post('/login', async (req, res) => {
+//SignUp a User
+router.post('/signup', async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.createCredentials(
+      req.body.email,
+      req.body.passwordHash
+    );
+    res.send(user);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
 
-    if (!user) {
-      res.status(300).json({ message: 'Email does not exist' });
-    }
+// SignIn a User
+router.post('/signin', async (req, res) => {
+  try {
+    const user = await User.findByCredentials(
+      req.body.email,
+      req.body.passwordHash
+    );
+    req.id = user._id.toString();
+    const token = await user.generateAuthToken(req.id);
+
+    // user.update({ $set: { tokens:  token  } });
+    // await user.save();
+
+    res.send({ user, token });
   } catch (error) {
     res.status(400).send(error);
   }

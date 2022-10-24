@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const userSchema = mongoose.Schema({
   name: {
@@ -23,6 +25,7 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
     lowercase: true,
+    unique: true,
     validate(value) {
       // email is passed to the value parameter
       if (!validator.isEmail(value))
@@ -97,15 +100,68 @@ const userSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
 // Middleware to hash a password before it is sent to database
-// userSchema.pre('save', async function (next) {
-//   const user = this;
-//   if (user.isModified('passwordHash')) {
-//     user.passwordHash = await bcrypt.hash(user.passwordHash, 8);
-//     next();
-//   }
-// });
+userSchema.pre('save', async function (next) {
+  const user = this;
+  if (user.isModified('passwordHash')) {
+    user.passwordHash = await bcrypt.hash(user.passwordHash, 8);
+    next();
+  }
+});
+
+//function to SignUp user
+userSchema.statics.createCredentials = async function (email, password) {
+  user = await this.create(
+    [
+      {
+        email: email,
+        passwordHash: password,
+      },
+    ],
+    {
+      validateBeforeSave: false,
+    }
+  );
+
+  return user;
+};
+
+// function to SignIn a user
+userSchema.statics.findByCredentials = async function (email, password) {
+  const user = await this.findOne({ email: email });
+  if (!user) {
+    return Error('Unable to add user');
+  }
+
+  const isMatch = await bcrypt.compare(password, user.passwordHash);
+  if (!isMatch) {
+    return Error('Unable to add User');
+  }
+
+  // console.log(user);
+  return user;
+};
+
+userSchema.methods.generateAuthToken = async function (id) {
+  userid = id;
+
+  const secret = process.env.TOKEN_SECRET;
+  const token = jwt.sign({ _id: userid }, secret);
+
+  this.tokens = this.tokens.concat({ token: token });
+
+  await this.save();
+  return token;
+};
 
 module.exports = mongoose.model('User', userSchema);
