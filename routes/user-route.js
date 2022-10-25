@@ -2,17 +2,13 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const { Mongoose } = require('mongoose');
 const User = require('../schemas/user_schema');
+const auth = require('../authentication/auth');
 
 const router = express.Router();
 
 // Get all Users
-router.get('/', async (req, res) => {
-  try {
-    let user = await User.find().sort({ dateCreated: -1 });
-    res.send(user);
-  } catch (error) {
-    res.status(500).send(error);
-  }
+router.get('/me', auth, async (req, res) => {
+  res.send(req.user);
 });
 
 // Get a Single User
@@ -27,6 +23,8 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     res.status(500).send(error);
   }
+
+  // res.send(req.user);
 });
 
 // Post for a User
